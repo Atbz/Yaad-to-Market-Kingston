@@ -113,22 +113,16 @@ function createAccount() {
     msg.innerText = 'That username is already taken, try another one';
     return;
   }
-
   var account = { user: user, pass: pass, role: role, whats: whats, market: market, trn: trn };
   localStorage.setItem(key, JSON.stringify(account));
   localStorage.setItem('loggedInUser', JSON.stringify(account));
-
-  msg.style.color = 'green';
-  msg.innerText = 'Account created! You are now logged in as ' + user;
-  updateLoginDisplay();
-  alert('Account created for ' + user + ' as ' + role);
+  afterLogin(account);
 }
 
 function loginUser() {
   var user = document.getElementById('loginUser').value.trim();
   var pass = document.getElementById('loginPass').value.trim();
   var msg = document.getElementById('loginMsg');
-
   var saved = localStorage.getItem('user_' + user.toLowerCase());
   if (!saved) {
     msg.style.color = 'red';
@@ -142,34 +136,78 @@ function loginUser() {
     return;
   }
   localStorage.setItem('loggedInUser', JSON.stringify(account));
-  msg.style.color = 'green';
-  msg.innerText = 'Welcome back ' + user;
-  updateLoginDisplay();
-  alert('Logged in as ' + user);
+  afterLogin(account);
 }
 
-function logoutUser() {
-  localStorage.removeItem('loggedInUser');
-  document.getElementById('loginMsg').innerText = 'Logged out';
-  updateLoginDisplay();
-}
+function afterLogin(account) {
+  // 1. Hide the login form
+  var loginBox = document.getElementById('loginSection');
+  if (loginBox) loginBox.style.display = 'none';
 
-function updateLoginDisplay() {
-  var saved = localStorage.getItem('loggedInUser');
-  if (!saved) return;
-  var account = JSON.parse(saved);
-  // This updates the Guest text at the top and Vendor Dashboard name
-  var all = document.body.innerHTML;
-  // Update any element that says Guest
-  var guestEls = document.querySelectorAll('*');
-  guestEls.forEach(function(el){
+  // 2. Change top name from Guest to username
+  document.querySelectorAll('*').forEach(function(el){
     if(el.children.length === 0 && el.innerText === 'Guest'){
       el.innerText = account.user;
     }
   });
   var dash = document.getElementById('vendorName');
   if (dash) dash.innerText = account.user;
+
+  // 3. Change top Login button to Logout
+  document.querySelectorAll('button, a').forEach(function(b){
+    if(b.innerText.trim() === 'Login' || b.innerText.trim() === 'Log In'){
+      b.innerText = 'Logout (' + account.user + ')';
+      b.onclick = function(){ logoutUser(); };
+    }
+  });
+
+  alert('Welcome ' + account.user + ' - ' + account.role + '! Taking you to the Shop to order.');
+  // 4. Go back to home / shop
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  var shop = document.getElementById('shop') || document.getElementById('products') || document.getElementById('home');
+  if (shop) shop.scrollIntoView({behavior: 'smooth'});
 }
+
+function logoutUser() {
+  localStorage.removeItem('loggedInUser');
+  var loginBox = document.getElementById('loginSection');
+  if (loginBox) loginBox.style.display = 'block';
+  document.getElementById('loginMsg').innerText = 'Logged out';
+  // Change button back to Login
+  document.querySelectorAll('button, a').forEach(function(b){
+    if(b.innerText.indexOf('Logout') === 0){
+      b.innerText = 'Login';
+      b.onclick = function(){ 
+        var l = document.getElementById('loginSection');
+        if(l) l.scrollIntoView({behavior:'smooth'});
+      };
+    }
+  });
+  window.location.reload();
+}
+
+// When page loads, if already logged in, hide login form
+window.addEventListener('load', function(){
+  var saved = localStorage.getItem('loggedInUser');
+  if (saved) {
+    var account = JSON.parse(saved);
+    // Don't show alert on reload, just hide form
+    var loginBox = document.getElementById('loginSection');
+    if (loginBox) loginBox.style.display = 'none';
+    document.querySelectorAll('*').forEach(function(el){
+      if(el.children.length === 0 && el.innerText === 'Guest'){
+        el.innerText = account.user;
+      }
+    });
+    document.querySelectorAll('button, a').forEach(function(b){
+      if(b.innerText.trim() === 'Login'){
+        b.innerText = 'Logout (' + account.user + ')';
+        b.onclick = function(){ logoutUser(); };
+      }
+    });
+  }
+});
+</script>
 </script><div id="partialBox" class="card hidden"><h2>Vendor - Propose Partial / Split</h2><p id="partialInfo"></p><div id="partialItems"></div><label>Vendor Note <textarea id="vendorNote"></textarea></label><button class="green" onclick="proposePartial()">📲 Send Proposal via WhatsApp</button><button onclick="show('vendorDashboard')">Cancel</button></div>
 <div id="otpBox" class="card hidden"><h2>🔐 OTP - Cash Handover</h2><p>Demo OTP: <b>123456</b></p><input id="otpIn" placeholder="Enter OTP"><button class="green" onclick="confirmHandoverOTP()">✅ Confirm Cash + Goods</button><button onclick="show('home')">Cancel</button><p id="otpOrderInfo"></p></div>
 <div id="reviewBox" class="card hidden"><h2>⭐ Rate Your Vendor</h2><p id="reviewInfo"></p><div class="stars" id="starPicker"><span onclick="setStars(1)">★</span><span onclick="setStars(2)">★</span><span onclick="setStars(3)">★</span><span onclick="setStars(4)">★</span><span onclick="setStars(5)">★</span></div><textarea id="reviewText" placeholder="How was the yam?"></textarea><button class="green" onclick="submitReview()">Submit Review</button><button onclick="show('home')">Later</button></div>
