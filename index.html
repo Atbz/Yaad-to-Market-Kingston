@@ -59,21 +59,35 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid #ccc
 
 <script>
 function addVendorProduct(){
-  var name = document.getElementById('prodName').value.trim();
-  var price = document.getElementById('prodPrice').value.trim();
-  var stock = document.getElementById('prodStock').value.trim();
-  var msg = document.getElementById('prodMsg');
-  if(!name || !price){ msg.style.color='red'; msg.innerText='Enter Name and Price'; return; }
-  var saved = localStorage.getItem('loggedInUser');
-  var vendor = saved ? JSON.parse(saved).user : 'TestVendor';
+  var name = document.getElementById('proName').value.trim();
+  var price = document.getElementById('proPrice').value.trim();
+  var stock = document.getElementById('proStock').value.trim();
+  var acc = JSON.parse(localStorage.getItem('loggedInUser') || 'null');
+  if(!acc){ alert('Login as Vendor first'); return; }
+  if(!name || !price){ alert('Enter Name and Price'); return; }
   var products = JSON.parse(localStorage.getItem('shopProducts') || '[]');
-  products.push({name: name, price: price, stock: stock, vendor: vendor});
+  products.push({ name:name, price:price, stock:stock, vendor:acc.user, market:acc.market || 'Kingston' });
   localStorage.setItem('shopProducts', JSON.stringify(products));
-  msg.style.color='green';
-  msg.innerText = name + ' added!';
-  alert(name + ' added to Shop by ' + vendor);
-  document.getElementById('prodName').value='';
-  document.getElementById('prodPrice').value='';
+  document.getElementById('proName').value = '';
+  document.getElementById('proPrice').value = '';
+  document.getElementById('proStock').value = '';
+  renderVendorProducts(); render();
+}
+function editVendorProduct(i){
+  var products = JSON.parse(localStorage.getItem('shopProducts') || '[]');
+  var p = products[i];
+  var np = prompt('Edit price for ' + p.name + ' (JMD)', p.price); if(np === null) return;
+  var ns = prompt('Edit stock for ' + p.name, p.stock); if(ns === null) return;
+  p.price = np; p.stock = ns;
+  localStorage.setItem('shopProducts', JSON.stringify(products));
+  renderVendorProducts(); render();
+}
+function deleteVendorProduct(i){
+  if(!confirm('Delete this good?')) return;
+  var products = JSON.parse(localStorage.getItem('shopProducts') || '[]');
+  products.splice(i, 1);
+  localStorage.setItem('shopProducts', JSON.stringify(products));
+  renderVendorProducts(); render();
 }
 
 // Make the old Vendor Dashboard button also scroll to this box
@@ -99,7 +113,47 @@ window.addEventListener('load', function(){
   }
 });
 </script>
-  <div class="card"><h2>Shop - Kingston</h2><div class="flex"><button onclick="show('vendorDashboard')">Vendor Dashboard</button><button onclick="findClosest()">📍 Closest</button></div><input id="search" placeholder="Search..." oninput="render()"><input id="myWhats" placeholder="Your WhatsApp e.g 8765550100" oninput="saveWhats()"><select id="marketFilter" onchange="render()"><option value="">All Kingston</option><option>Coronation Market</option><option>Cross Roads Market</option><option>Papine Market</option><option>Constant Spring Market</option><option>Half Way Tree Market</option></select></div>
+<div style="display:flex;gap:8px;">
+  <div style="background:#fff7d6;padding:10px;border-radius:12px;flex:1;text-align:center">📩 Today's Earnings<br><b>JMD 12,450</b></div>
+  <div style="background:#fff7d6;padding:10px;border-radius:12px;flex:1;text-align:center">🧑‍🍳 Orders Today<br><b>8 Orders</b></div>
+  <div style="background:#fff7d6;padding:10px;border-radius:12px;flex:1;text-align:center">👤 Avg. Prep<br><b>18 min</b></div>
+</div>
+
+<div style="background:#fff;padding:14px;border-radius:14px;margin-top:12px">
+  <h3>📊 Weekly Earnings • Cash Only</h3>
+  <div style="display:flex;align-items:flex-end;gap:8px;height:110px">
+    <div style="flex:1;background:#a8c69f;border-radius:8px 8px 0 0;height:30%;text-align:center;font-size:11px">JMD 8.2k</div>
+    <div style="flex:1;background:#a8c69f;border-radius:8px 8px 0 0;height:45%;text-align:center;font-size:11px">JMD 9.6k</div>
+    <div style="flex:1;background:#a8c69f;border-radius:8px 8px 0 0;height:65%;text-align:center;font-size:11px">JMD 12.1k</div>
+    <div style="flex:1;background:#a8c69f;border-radius:8px 8px 0 0;height:80%;text-align:center;font-size:11px">JMD 14.3k</div>
+    <div style="flex:1;background:#a8c69f;border-radius:8px 8px 0 0;height:95%;text-align:center;font-size:11px">JMD 15.7k</div>
+    <div style="flex:1;background:#a8c69f;border-radius:8px 8px 0 0;height:70%;text-align:center;font-size:11px">JMD 13.4k</div>
+    <div style="flex:1;background:#a8c69f;border-radius:8px 8px 0 0;height:50%;text-align:center;font-size:11px">JMD 7.6k</div>
+  </div>
+  <div style="display:flex;gap:8px;text-align:center;font-size:12px"><div style="flex:1">Mon</div><div style="flex:1">Tue</div><div style="flex:1">Wed</div><div style="flex:1">Thu</div><div style="flex:1">Fri</div><div style="flex:1">Sat</div><div style="flex:1">Sun</div></div>
+</div>
+
+<div style="background:#fff;padding:14px;border-radius:14px;margin-top:12px">
+  <h3>📊 Earnings Summary</h3>
+  <p>This Week <b style="float:right">JMD 68,900</b></p>
+  <p>Cash Collected on Handover <b style="float:right">JMD 22,100</b></p>
+  <p><small>Yaad Market Commission (10%)</small> <b style="float:right">JMD 2,210</b></p>
+  <hr>
+  <small>Cash only • Collected on handover • JMD 22,100 📅</small>
+</div>
+
+<h3>Orders From Customers</h3>
+<div id="vendorOrders"></div>
+
+<div style="background:#fff;padding:14px;border-radius:14px;margin-top:12px">
+  <h3>Your Goods - Saved To Profile</h3>
+  <input id="proName" placeholder="Product name e.g Banana" style="width:100%;padding:10px;margin-bottom:6px">
+  <input id="proPrice" type="number" placeholder="Price JMD" style="width:100%;padding:10px;margin-bottom:6px">
+  <input id="proStock" type="number" placeholder="Stock" style="width:100%;padding:10px;margin-bottom:6px">
+  <button onclick="addVendorProduct()" style="padding:10px 16px;background:#2e7d32;color:#fff;border:0;border-radius:20px">+ Add Good</button>
+  <div id="myProducts" style="margin-top:10px"></div>
+  <small>Everything you add is saved to your profile and can be edited later.</small>
+</div>
 <div class="card"><h3>Shop - With Vendor Ratings</h3><div id="products" class="grid"></div></div>
 <div class="card"><h3>🛒 Cart</h3><div id="cart"></div><label>Delivery <select id="delType"><option value="Pickup - Coronation">Pickup - Coronation</option><option value="Delivery Downtown $300">Delivery Downtown $300</option><option value="Delivery Cross Roads/HWT $500">Delivery Cross Roads/HWT $500</option><option value="Delivery Papine/Constant Spring $700">Delivery Papine/Constant Spring $700</option></select></label><button onclick="checkout()">Place Order - Smart Match</button><p id="matchInfo"></p></div>
 <div class="card"><h3>📦 My Orders</h3><div id="orders"></div></div>
@@ -381,28 +435,77 @@ function renderVendorProducts(){
   var el = document.getElementById('vMyProducts');
   if(!el) return;
   if(mine.length===0){ el.innerHTML='<p>No products yet.</p>'; return; }
-  el.innerHTML = mine.map((p,i)=>'<div style="padding:8px; background:#fff; border:1px solid #ddd; border-radius:8px; margin-bottom:5px;">'+p.name+' - J$'+p.price+' (Stock: '+p.stock+')</div>').join('');
+  el.innerHTML = mine.map((p,i)=>'function addVendorProduct(){
+  var name = document.getElementById('proName').value.trim();
+  var price = document.getElementById('proPrice').value.trim();
+  var stock = document.getElementById('proStock').value.trim();
+  var acc = JSON.parse(localStorage.getItem('loggedInUser') || 'null');
+  if(!acc){ alert('Login as Vendor first'); return; }
+  if(!name || !price){ alert('Enter Name and Price'); return; }
+  var products = JSON.parse(localStorage.getItem('shopProducts') || '[]');
+  products.push({ name:name, price:price, stock:stock, vendor:acc.user, market:acc.market || 'Kingston' });
+  localStorage.setItem('shopProducts', JSON.stringify(products));
+  document.getElementById('proName').value = '';
+  document.getElementById('proPrice').value = '';
+  document.getElementById('proStock').value = '';
+  renderVendorProducts(); render();
+}
+function editVendorProduct(i){
+  var products = JSON.parse(localStorage.getItem('shopProducts') || '[]');
+  var p = products[i];
+  var np = prompt('Edit price for ' + p.name + ' (JMD)', p.price); if(np === null) return;
+  var ns = prompt('Edit stock for ' + p.name, p.stock); if(ns === null) return;
+  p.price = np; p.stock = ns;
+  localStorage.setItem('shopProducts', JSON.stringify(products));
+  renderVendorProducts(); render();
+}
+function deleteVendorProduct(i){
+  if(!confirm('Delete this good?')) return;
+  var products = JSON.parse(localStorage.getItem('shopProducts') || '[]');
+  products.splice(i, 1);
+  localStorage.setItem('shopProducts', JSON.stringify(products));
+  renderVendorProducts(); render();
+}
+').join('');
 }
 function renderVendorOrders(){
-  var acc = JSON.parse(localStorage.getItem('loggedInUser') || '{}');
+  var list = document.getElementById('vendorOrders');
+  if(!list) return;
+  var acc = JSON.parse(localStorage.getItem('loggedInUser') || 'null');
   var orders = JSON.parse(localStorage.getItem('allOrders') || '[]');
-  var mine = orders.filter(o => o.vendor === acc.user);
-  var el = document.getElementById('vOrdersList');
-  if(!el) return;
-  if(mine.length===0){
-    el.innerHTML='<p>No orders yet.</p><button onclick="createTestOrder()" style="padding:8px;">Create Test Order (to try Confirm/Fulfill)</button>';
-    return;
-  }
-  el.innerHTML = mine.map((o,idx)=>{
-    var realIdx = orders.indexOf(o);
-    var btns = '';
-    if(o.status==='New') btns = '<button onclick="updateOrderStatus('+realIdx+',\'Confirmed\')" style="padding:10px; background:#2563eb; color:#fff; border:none; border-radius:8px; width:100%;">Confirm Order</button>';
-    else if(o.status==='Confirmed') btns = '<button onclick="updateOrderStatus('+realIdx+',\'Fulfilled\')" style="padding:10px; background:#f97316; color:#fff; border:none; border-radius:8px; width:100%;">Mark as Fulfilled</button>';
-    else if(o.status==='Fulfilled') btns = '<button onclick="updateOrderStatus('+realIdx+',\'Delivered\')" style="padding:10px; background:#16a34a; color:#fff; border:none; border-radius:8px; width:100%;">Mark as Delivered</button>';
-    else btns = '<b>✅ Delivered</b>';
-    return '<div style="padding:12px; background:#fff; border:1px solid #ddd; border-radius:10px; margin-bottom:10px;"><b>Order from: '+(o.customer||'Customer')+'</b><br>Items: '+(o.items||'')+'<br>Total: J$'+(o.total||'')+'<br>Status: <b>'+o.status+'</b><br><br>'+btns+'</div>';
+  var myOrders = orders.filter(function(o){ return acc && o.vendor === acc.user; });
+  if(myOrders.length === 0){ list.innerHTML = 'No orders yet. When a customer buys from you, it will show here.'; return; }
+  list.innerHTML = myOrders.map(function(o){
+    var statusBtn = '';
+    if(o.status === 'NEW' || o.status === 'PREPARING'){
+      statusBtn = '<button onclick="updateOrderStatus('+o.id+',\'READY\')" style="padding:8px 12px;background:#2e7d32;color:#fff;border:0;border-radius:20px">Mark as Ready</button>';
+    } else if(o.status === 'READY'){
+      statusBtn = '<button onclick="updateOrderStatus('+o.id+',\'COMPLETED - Cash Collected on Handover\')" style="padding:8px 12px;background:#2e7d32;color:#fff;border:0;border-radius:20px">Cash Collected ✓</button>';
+    } else {
+      statusBtn = '<button style="padding:8px 12px;background:#2e7d32;color:#fff;border:0;border-radius:20px">Completed ✓</button>';
+    }
+    return '<div style="background:#fff;padding:12px;border-radius:12px;margin-bottom:10px;">' +
+      '<b>Customer: ' + o.customer + '</b> <span style="float:right">#' + o.id + '</span><br>' +
+      '• ' + o.product + ' x' + o.qty + '<br><br>' +
+      'Total: <b>JMD ' + o.total + '</b><br>Status: ' + o.status + '<br><br>' +
+      '<button onclick="updateOrderStatus('+o.id+',\'DECLINED\')" style="padding:8px 12px;background:#eee;border:0;border-radius:20px">Decline</button> ' + statusBtn + '</div>';
   }).join('');
 }
+
+function updateOrderStatus(id, newStatus){
+  var orders = JSON.parse(localStorage.getItem('allOrders') || '[]');
+  // DECLINED = remove it, others = update status
+  if(newStatus === 'DECLINED'){
+    if(!confirm('Decline this order?')) return;
+    orders = orders.filter(function(x){ return x.id !== id; });
+  } else {
+    var o = orders.find(function(x){ return x.id === id; });
+    if(o) o.status = newStatus;
+  }
+  localStorage.setItem('allOrders', JSON.stringify(orders));
+  renderVendorOrders();
+}
+
 function updateOrderStatus(idx, newStatus){
   var orders = JSON.parse(localStorage.getItem('allOrders') || '[]');
   orders[idx].status = newStatus;
