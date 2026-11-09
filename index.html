@@ -327,4 +327,108 @@ function submitReview(){let o=DB.orders.find(x=>x.id==DB.pendingReview); DB.revi
 function addProduct(){let p={name:document.getElementById('pName').value,price:+document.getElementById('pPrice').value,infl:+document.getElementById('pInfl').value,shelf:+document.getElementById('pShelf').value,stock:+document.getElementById('pStock').value,market:'Coronation Market',vendor:DB.current,lat:17.972,lng:-76.793,img:'https://images.unsplash.com/photo-1596097635121-14b63b7a0c19?w=400'}; DB.products.push(p); save(); renderVendor();}
 function findClosest(){if(!navigator.geolocation) return alert('Allow GPS'); navigator.geolocation.getCurrentPosition(pos=>{let la=pos.coords.latitude, lo=pos.coords.longitude; let sorted=[...DB.products].sort((a,b)=>Math.hypot(a.lat-la,a.lng-lo)-Math.hypot(b.lat-la,b.lng-lo)); alert('Closest: '+sorted[0].vendor+' - '+sorted[0].name);});}
 render();
+<div id="vendorOnlyPanel" style="display:none; padding:15px;">
+  <h2>Vendor Dashboard - <span id="vName">Vendor</span></h2>
+  <p>You only see your stuff.</p>
+
+  <div style="padding:15px; background:#fff7ed; border:2px solid #f97316; border-radius:12px; margin-bottom:15px;">
+    <h3>1. Add Goods</h3>
+    <input id="vProdName" placeholder="Product Name e.g. Banana" style="width:100%; padding:10px; margin-bottom:8px;"><br>
+    <input id="vProdPrice" type="number" placeholder="Price J$ 500" style="width:100%; padding:10px; margin-bottom:8px;"><br>
+    <input id="vProdStock" type="number" placeholder="Stock 10" style="width:100%; padding:10px; margin-bottom:8px;"><br>
+    <button onclick="vendorAddProduct2()" style="width:100%; padding:12px; background:#f97316; color:#fff; border:none; border-radius:8px; font-weight:bold;">Add Product to Shop</button>
+    <p id="vProdMsg" style="color:green;"></p>
+    <h4>Your Products:</h4>
+    <div id="vMyProducts"></div>
+  </div>
+
+  <div style="padding:15px; background:#f0fdf4; border:2px solid #16a34a; border-radius:12px;">
+    <h3>2. Orders From Customers</h3>
+    <button onclick="renderVendorOrders()" style="padding:10px; background:#16a34a; color:#fff; border:none; border-radius:8px;">Refresh Orders</button>
+    <div id="vOrdersList" style="margin-top:10px;"></div>
+  </div>
+</div>
+
+<script>
+function vendorAddProduct2(){
+  var name = document.getElementById('vProdName').value.trim();
+  var price = document.getElementById('vProdPrice').value.trim();
+  var stock = document.getElementById('vProdStock').value.trim();
+  if(!name || !price){ alert('Enter Name and Price'); return; }
+  var acc = JSON.parse(localStorage.getItem('loggedInUser') || '{}');
+  var products = JSON.parse(localStorage.getItem('shopProducts') || '[]');
+  products.push({name:name, price:price, stock:stock, vendor: acc.user || 'Vendor'});
+  localStorage.setItem('shopProducts', JSON.stringify(products));
+  document.getElementById('vProdMsg').innerText = name + ' added!';
+  document.getElementById('vProdName').value='';
+  document.getElementById('vProdPrice').value='';
+  document.getElementById('vProdStock').value='';
+  renderVendorProducts();
+}
+function renderVendorProducts(){
+  var acc = JSON.parse(localStorage.getItem('loggedInUser') || '{}');
+  var products = JSON.parse(localStorage.getItem('shopProducts') || '[]');
+  var mine = products.filter(p => p.vendor === acc.user);
+  var el = document.getElementById('vMyProducts');
+  if(!el) return;
+  if(mine.length===0){ el.innerHTML='<p>No products yet.</p>'; return; }
+  el.innerHTML = mine.map((p,i)=>'<div style="padding:8px; background:#fff; border:1px solid #ddd; border-radius:8px; margin-bottom:5px;">'+p.name+' - J$'+p.price+' (Stock: '+p.stock+')</div>').join('');
+}
+function renderVendorOrders(){
+  var acc = JSON.parse(localStorage.getItem('loggedInUser') || '{}');
+  var orders = JSON.parse(localStorage.getItem('allOrders') || '[]');
+  var mine = orders.filter(o => o.vendor === acc.user);
+  var el = document.getElementById('vOrdersList');
+  if(!el) return;
+  if(mine.length===0){
+    el.innerHTML='<p>No orders yet.</p><button onclick="createTestOrder()" style="padding:8px;">Create Test Order (to try Confirm/Fulfill)</button>';
+    return;
+  }
+  el.innerHTML = mine.map((o,idx)=>{
+    var realIdx = orders.indexOf(o);
+    var btns = '';
+    if(o.status==='New') btns = '<button onclick="updateOrderStatus('+realIdx+',\'Confirmed\')" style="padding:10px; background:#2563eb; color:#fff; border:none; border-radius:8px; width:100%;">Confirm Order</button>';
+    else if(o.status==='Confirmed') btns = '<button onclick="updateOrderStatus('+realIdx+',\'Fulfilled\')" style="padding:10px; background:#f97316; color:#fff; border:none; border-radius:8px; width:100%;">Mark as Fulfilled</button>';
+    else if(o.status==='Fulfilled') btns = '<button onclick="updateOrderStatus('+realIdx+',\'Delivered\')" style="padding:10px; background:#16a34a; color:#fff; border:none; border-radius:8px; width:100%;">Mark as Delivered</button>';
+    else btns = '<b>✅ Delivered</b>';
+    return '<div style="padding:12px; background:#fff; border:1px solid #ddd; border-radius:10px; margin-bottom:10px;"><b>Order from: '+(o.customer||'Customer')+'</b><br>Items: '+(o.items||'')+'<br>Total: J$'+(o.total||'')+'<br>Status: <b>'+o.status+'</b><br><br>'+btns+'</div>';
+  }).join('');
+}
+function updateOrderStatus(idx, newStatus){
+  var orders = JSON.parse(localStorage.getItem('allOrders') || '[]');
+  orders[idx].status = newStatus;
+  localStorage.setItem('allOrders', JSON.stringify(orders));
+  alert('Order is now: ' + newStatus);
+  renderVendorOrders();
+}
+function createTestOrder(){
+  var acc = JSON.parse(localStorage.getItem('loggedInUser') || '{}');
+  var orders = JSON.parse(localStorage.getItem('allOrders') || '[]');
+  orders.push({vendor: acc.user, customer:'Test Customer', items:'Test Banana x 2', total:'1000', status:'New'});
+  localStorage.setItem('allOrders', JSON.stringify(orders));
+  renderVendorOrders();
+}
+function applyRoleView(){
+  var saved = localStorage.getItem('loggedInUser');
+  if(!saved) return;
+  var acc = JSON.parse(saved);
+  var panel = document.getElementById('vendorOnlyPanel');
+  if(acc.role === 'Vendor'){
+    if(panel) panel.style.display='block';
+    document.getElementById('vName').innerText = acc.user;
+    document.querySelectorAll('.card').forEach(function(card){
+      var txt = card.innerText || '';
+      if(txt.includes('Shop -') || txt.includes('Cart') || txt.includes('My Orders') || txt.includes('Vendor Reviews')){
+        card.style.display='none';
+      }
+    });
+    renderVendorProducts();
+    renderVendorOrders();
+    setTimeout(()=>{ panel.scrollIntoView({behavior:'smooth'}); }, 300);
+  } else {
+    if(panel) panel.style.display='none';
+  }
+}
+window.addEventListener('load', function(){ setTimeout(applyRoleView, 500); });
+</script>
 </script></body></html>
