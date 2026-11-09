@@ -23,7 +23,29 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid #ccc
 </style></head><body>
 <header><div style="display:flex;align-items:center;gap:10px"><img src="logo.png"><b>Yaad Market KINGSTON - LIVE</b></div><span id="userLabel">Guest</span><button onclick="show('auth')">Login</button></header>
 <div id="home">
-<div class="card cashbox"><h2>💵 Order Live - <span class="live">● Vendors Online Now</span></h2><p>Customer on one phone → Vendor on another phone sees it instantly. 5-min hold, Smart Match, Split Orders, Reviews.</p><p id="connStatus">Connecting to Firebase...</p></div>
+<div style="background:#ffffff; border-radius:24px; padding:24px; box-shadow:0 10px 30px rgba(0,0,0,0.08); margin:16px 0; font-family:system-ui, sans-serif;">
+
+  <div style="display:flex; align-items:flex-start; gap:14px;">
+    <div style="background:#d9f2d9; border-radius:18px; padding:14px; font-size:32px;">💵</div>
+    <div>
+      <h2 style="margin:0; font-size:26px; line-height:1.2; color:#1a1a1a;">Cash on Handover - Order Live</h2>
+      <p style="margin:8px 0 0; font-size:17px; color:#444; line-height:1.4;">Order now, vendor sees it instantly. Pay when it reaches you.</p>
+    </div>
+    <div style="width:14px; height:14px; background:#22c55e; border-radius:50%; box-shadow:0 0 0 6px #dcfce7; margin-top:8px;"></div>
+  </div>
+
+  <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:18px;">
+    <span style="background:#e6f5e6; padding:8px 12px; border-radius:20px; font-size:14px;">⏱️ 5-min hold</span>
+    <span style="background:#e6f5e6; padding:8px 12px; border-radius:20px; font-size:14px;">🎯 Smart Match</span>
+    <span style="background:#e6f5e6; padding:8px 12px; border-radius:20px; font-size:14px;">🧾 Split Orders</span>
+    <span style="background:#e6f5e6; padding:8px 12px; border-radius:20px; font-size:14px;">⭐ Reviews</span>
+  </div>
+
+  <div style="text-align:center; margin-top:18px;">
+    <span style="background:#eef7ee; color:#15803d; padding:8px 16px; border-radius:20px; font-size:14px; font-weight:600;">● Vendors Online Now • Kingston, Jamaica</span>
+  </div>
+
+</div>
 <div class="card"><h2>Shop - Kingston</h2><div class="flex"><button onclick="show('vendorDashboard')">Vendor Dashboard</button><button onclick="findClosest()">📍 Closest</button></div><input id="search" placeholder="Search..." oninput="render()"><input id="myWhats" placeholder="Your WhatsApp e.g 8765550100" oninput="saveWhats()"><select id="marketFilter" onchange="render()"><option value="">All Kingston</option><option>Coronation Market</option><option>Cross Roads Market</option><option>Papine Market</option><option>Constant Spring Market</option><option>Half Way Tree Market</option></select></div>
 <div class="card"><h3>Shop - With Vendor Ratings</h3><div id="products" class="grid"></div></div>
 <div class="card"><h3>🛒 Cart</h3><div id="cart"></div><label>Delivery <select id="delType"><option value="Pickup - Coronation">Pickup - Coronation</option><option value="Delivery Downtown $300">Delivery Downtown $300</option><option value="Delivery Cross Roads/HWT $500">Delivery Cross Roads/HWT $500</option><option value="Delivery Papine/Constant Spring $700">Delivery Papine/Constant Spring $700</option></select></label><button onclick="checkout()">Place Order - Smart Match</button><p id="matchInfo"></p></div>
