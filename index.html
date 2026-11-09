@@ -191,7 +191,16 @@ function loginUser() {
   localStorage.setItem('loggedInUser', JSON.stringify(account));
   afterLogin(account);
 }
+function afterLogin(account) {
+  // 1. Hide the login form
+  // ... your existing code ...
 
+  // ADD THIS AT THE END OF afterLogin:
+  render();
+  if(account.role === 'Vendor'){
+    applyVendorOnly();
+  }
+}
 function afterLogin(account) {
   // 1. Hide the login form
   var loginBox = document.getElementById('loginSection');
@@ -431,4 +440,29 @@ function applyRoleView(){
 }
 window.addEventListener('load', function(){ setTimeout(applyRoleView, 500); });
 </script>
+  function applyVendorOnly(){
+  var panel = document.getElementById('vendorOnlyPanel');
+  if(panel) panel.style.display = 'block';
+  document.querySelectorAll('.card').forEach(function(card){
+    var txt = card.innerText || '';
+    if(txt.includes('Shop -') || txt.includes('Cart') || txt.includes('My Orders')){
+      card.style.display = 'none';
+    }
+  });
+  renderVendorOrders();
+}
+
+function renderVendorOrders(){
+  var list = document.getElementById('vOrdersList');
+  if(!list) return;
+  var myOrders = (DB.orders || []).filter(function(o){ return o.vendor === DB.current.user; });
+  if(myOrders.length === 0){
+    list.innerHTML = 'No orders yet. When a customer buys from you, it will show here.';
+    return;
+  }
+  list.innerHTML = myOrders.map(function(o){
+    return '<div style="border:1px solid #ddd; padding:10px; margin-bottom:10px; border-radius:8px;">' +
+      '<b>' + o.customer + '</b> ordered ' + o.product + ' x' + o.qty + ' - $' + o.total + '<br>Status: ' + o.status + '</div>';
+  }).join('');
+}
 </script></body></html>
