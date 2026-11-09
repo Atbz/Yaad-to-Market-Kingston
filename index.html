@@ -15,7 +15,7 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid #ccc
 .prod{border:1px solid #eee;border-radius:10px;padding:10px}.prod img{width:100%;height:110px;object-fit:cover;border-radius:8px}
 .badge{background:#ffe9b0;padding:3px 8px;border-radius:20px;font-size:11px}
 .hidden{display:none}.flex{display:flex;gap:8px;flex-wrap:wrap}
-.cashbox{background:#fff8d6;border:2px solid #ffaa00;padding:12px;border-radius:10px}
+.cashbox{background:#ffffff;border:0;padding:24px;border-radius:24px;box-shadow:0 10px 30px rgba(0,0,0,0.08);margin:16px 12px;}
 .orderbox{border:2px solid #ddd;border-radius:10px;padding:10px;margin:8px 0}
 .stars{font-size:28px;cursor:pointer}.stars span{color:#ccc}.stars span.on{color:#ffaa00}
 .timer{color:#c00;font-weight:700}.review{border-left:3px solid #ffaa00;padding:6px;margin:6px 0;background:#fff8e6}
@@ -23,7 +23,7 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid #ccc
 </style></head><body>
 <header><div style="display:flex;align-items:center;gap:10px"><img src="logo.png"><b>Yaad Market KINGSTON - LIVE</b></div><span id="userLabel">Guest</span><button onclick="show('auth')">Login</button></header>
 <div id="home">
-<div class="card cashbox"><h2>💵 CASH ON HANDOVER - <span class="live">● LIVE - Multi-User</span></h2><p>Customer on one phone → Vendor on another phone sees it instantly. 5-min hold, Smart Match, Split Orders, Reviews.</p><p id="connStatus">Connecting to Firebase...</p></div>
+<div class="card cashbox"><h2>💵 Order Live - <span class="live">● Vendors Online Now</span></h2><p>Customer on one phone → Vendor on another phone sees it instantly. 5-min hold, Smart Match, Split Orders, Reviews.</p><p id="connStatus">Connecting to Firebase...</p></div>
 <div class="card"><h2>Shop - Kingston</h2><div class="flex"><button onclick="show('vendorDashboard')">Vendor Dashboard</button><button onclick="findClosest()">📍 Closest</button></div><input id="search" placeholder="Search..." oninput="render()"><input id="myWhats" placeholder="Your WhatsApp e.g 8765550100" oninput="saveWhats()"><select id="marketFilter" onchange="render()"><option value="">All Kingston</option><option>Coronation Market</option><option>Cross Roads Market</option><option>Papine Market</option><option>Constant Spring Market</option><option>Half Way Tree Market</option></select></div>
 <div class="card"><h3>Shop - With Vendor Ratings</h3><div id="products" class="grid"></div></div>
 <div class="card"><h3>🛒 Cart</h3><div id="cart"></div><label>Delivery <select id="delType"><option value="Pickup - Coronation">Pickup - Coronation</option><option value="Delivery Downtown $300">Delivery Downtown $300</option><option value="Delivery Cross Roads/HWT $500">Delivery Cross Roads/HWT $500</option><option value="Delivery Papine/Constant Spring $700">Delivery Papine/Constant Spring $700</option></select></label><button onclick="checkout()">Place Order - Smart Match</button><p id="matchInfo"></p></div>
@@ -131,7 +131,7 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid #ccc
 </style></head><body>
 <header><div style="display:flex;align-items:center;gap:10px"><img src="logo.png"><b>Yaad Market KINGSTON - LIVE</b></div><span id="userLabel">Guest</span><button onclick="show('auth')">Login</button></header>
 <div id="home">
-<div class="card cashbox"><h2>💵 CASH ON HANDOVER - <span class="live">● LIVE - Multi-User</span></h2><p>Customer on one phone → Vendor on another phone sees it instantly. 5-min hold, Smart Match, Split Orders, Reviews.</p><p id="connStatus">Connecting to Firebase...</p></div>
+<div class="card cashbox"><h2>💵 CASH ON HANDOVER - <span class="live">● Vendors Online Now</span></h2><p>Customer on one phone → Vendor on another phone sees it instantly. 5-min hold, Smart Match, Split Orders, Reviews.</p><p id="connStatus">Connecting to Firebase...</p></div>
 <div class="card"><h2>Shop - Kingston</h2><div class="flex"><button onclick="show('vendorDashboard')">Vendor Dashboard</button><button onclick="findClosest()">📍 Closest</button></div><input id="search" placeholder="Search..." oninput="render()"><input id="myWhats" placeholder="Your WhatsApp e.g 8765550100" oninput="saveWhats()"><select id="marketFilter" onchange="render()"><option value="">All Kingston</option><option>Coronation Market</option><option>Cross Roads Market</option><option>Papine Market</option><option>Constant Spring Market</option><option>Half Way Tree Market</option></select></div>
 <div class="card"><h3>Shop - With Vendor Ratings</h3><div id="products" class="grid"></div></div>
 <div class="card"><h3>🛒 Cart</h3><div id="cart"></div><label>Delivery <select id="delType"><option value="Pickup - Coronation">Pickup - Coronation</option><option value="Delivery Downtown $300">Delivery Downtown $300</option><option value="Delivery Cross Roads/HWT $500">Delivery Cross Roads/HWT $500</option><option value="Delivery Papine/Constant Spring $700">Delivery Papine/Constant Spring $700</option></select></label><button onclick="checkout()">Place Order - Smart Match</button><p id="matchInfo"></p></div>
