@@ -423,10 +423,15 @@ function renderVendorProducts(){
   var acc = JSON.parse(localStorage.getItem('loggedInUser') || '{}');
   var products = JSON.parse(localStorage.getItem('shopProducts') || '[]');
   var mine = products.filter(p => p.vendor === acc.user);
-  var el = document.getElementById('vMyProducts');
+  var el = document.getElementById('myProducts');
   if(!el) return;
   if(mine.length===0){ el.innerHTML='<p>No products yet.</p>'; return; }
-  el.innerHTML = mine.map((p,i)=>'function addVendorProduct(){
+  el.innerHTML = mine.map((p)=>{
+    var realIndex = products.indexOf(p);
+    return '<div style="padding:8px; background:#fff; border:1px solid #ddd; border-radius:8px; margin-bottom:5px;">'+p.name+' - J$'+p.price+' (Stock: '+p.stock+')<br><button onclick="editVendorProduct('+realIndex+')">Edit</button> <button onclick="deleteVendorProduct('+realIndex+')">Delete</button></div>';
+  }).join('');
+}
+function addVendorProduct(){
   var name = document.getElementById('proName').value.trim();
   var price = document.getElementById('proPrice').value.trim();
   var stock = document.getElementById('proStock').value.trim();
@@ -436,10 +441,10 @@ function renderVendorProducts(){
   var products = JSON.parse(localStorage.getItem('shopProducts') || '[]');
   products.push({ name:name, price:price, stock:stock, vendor:acc.user, market:acc.market || 'Kingston' });
   localStorage.setItem('shopProducts', JSON.stringify(products));
-  document.getElementById('proName').value = '';
-  document.getElementById('proPrice').value = '';
-  document.getElementById('proStock').value = '';
-  renderVendorProducts(); render();
+  document.getElementById('proName').value='';
+  document.getElementById('proPrice').value='';
+  document.getElementById('proStock').value='';
+  renderVendorProducts();
 }
 function editVendorProduct(i){
   var products = JSON.parse(localStorage.getItem('shopProducts') || '[]');
